@@ -16,8 +16,10 @@
 	<body>
 	<form name="mainForm" class="wrapper" action="#" method="get">
 		<h1>List</h1>
-		<input type="text" placeholder="Add item to list" name="mainTextInput" class="textBox"/>
-		<input id="addListElm" type="submit" title="Add item to list" value="Add" class="actionButton bigButton rightSideButton"/>
+		<div class="clearHack">
+			<input type="text" placeholder="Add item to list" name="mainTextInput" class="textBox"/>
+			<input id="addListElm" type="submit" title="Add item to list" value="Add" class="actionButton bigButton rightSideButton"/>
+		</div>
 		<ol>
 			<li class="listElm">
 				<input type="text" value="List element 1" class="editInput" size="45"/>
@@ -39,7 +41,7 @@
 		<div class="center">
 			<input id="removeListElm" type="button" title="Remove selected list elements" value="Remove" class="actionButton bigButton" />
 		</div>
-		<div>
+		<div class="clearHack">
 			<input id="outputJSON" type="button" title="output JSON" value="Output JSON" class="actionButton bigButton leftSideButton"/>
 			<input type="text" placeholder="JSON goes here" name="jsonTextInput" class="textBox smallText"/>
 			<input id="inputJSON" type="button" title="input JSON from text field" value="Input JSON" class="actionButton bigButton rightSideButton"/>

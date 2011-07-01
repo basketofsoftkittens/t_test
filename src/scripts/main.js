@@ -90,7 +90,7 @@ $ = function(){
 		 */
 		removeClass: function( elm, classNameToRemove ){
 			if( elm.className.indexOf(classNameToRemove) > -1 ) {
-				elm.className = ( new RegExp( elm.className, "g" ) ).replace( classNameToRemove, "" );
+				elm.className = ( elm.className ).replace( new RegExp( classNameToRemove, "g" ), "" );
 				return true;
 			}
 			return false;
@@ -138,6 +138,23 @@ $ = function(){
 			} else {
 				window.onload = func;
 			}
+		},
+		/**
+		 * Stop an event from propagating
+		 */
+		stopEvent:function( e ) {
+			if (e.stopPropagation) e.stopPropagation();
+			else e.cancelBubble = true;
+
+			if (e.preventDefault) e.preventDefault();
+			else e.returnValue = false;
+			return e;
+		},
+		/**
+		 * Get the target element of the event
+		 */
+		getEventTarget:function( e ){
+			return ( typeof( e.srcElement ) == "undefined" ) ? e.target : e.srcElement;
 		}
 	}
 }();
@@ -345,14 +362,21 @@ ListBuilder.prototype = {
 		// the scope that the function is called in to
 		// the listbuilder object	      			    
 		args.push(function( e ){
-			func.apply(self,arguments);
+			var ev = typeof( e ) == "undefined" ? window.event : e;
+			func.call(self,ev);
 		});
 		// set the correct event registration handler
-		var attachEventFunc = function( eName, nFunc, bubbling ){
-			if( elm.addEventListener ){
-				elm.addEventListener( eName, nFunc, bubbling );
+		var attachEventFunc = function( eName, nFunc, bubbling, attachEventDirectly ){
+			if( !attachEventDirectly ){
+				if( $.checkType( elm.addEventListener, "function" ) ){
+					elm.addEventListener( eName, nFunc, bubbling );
+				} else if( $.checkType( elm.attachEvent,"function" ) ){
+					elm.attachEvent( "on" + eName, nFunc );
+				} else {
+					elm["on" + eName] = nFunc;
+				}
 			} else {
-				elm.attachEvent( eName, nFunc, bubbling );
+				elm["on" + eName] = nFunc;
 			}
 		};
 		// catch event on the bubbling phase so we can delegate
@@ -364,9 +388,9 @@ ListBuilder.prototype = {
 			var alsoAttach		= ( eventName == "blur" ? "focusout" : "focusin" )
 				,alsoAttachArgs = args.slice();
 			alsoAttachArgs[0] = alsoAttach;
-			attachEventFunc(args[0],args[1],args[2]);
+			attachEventFunc(alsoAttachArgs[0],alsoAttachArgs[1],alsoAttachArgs[2],true);
 		}
-		attachEventFunc(args[0],args[1],args[2]);
+		attachEventFunc(args[0],args[1],args[2],false);
 	},
 	
 	/**
@@ -375,24 +399,24 @@ ListBuilder.prototype = {
 	 * @return VOID
 	 */
 	eventRouter:function( e ){
-		
-		var id = (e.target.getAttribute("id") || false);
+		var target = $.getEventTarget(e)
+		  , id = (target.getAttribute("id") || false);
 
-		if( e.target.getAttribute("type") == "text") {
-			if(e.type == "focus") {
-				this.focusedElm = e.target;
+		if( target.getAttribute("type") == "text") {
+			if( (e.type == "focus"|| e.type == "focusin") ) {
+				this.focusedElm = target;
 			}
-			if(e.type == "blur") {
+			if( (e.type == "blur" || e.type == "focusout") ) {
 				this.focusedElm = false;
 			}
 		}
 			
 		if( id == "addListElm" ) {
 			
-			e.preventDefault();
+			$.stopEvent(e);
 			if( this.focusedElm && $.hasClass( this.focusedElm, "editInput") ) {
 				
-				this.editListElement( e.target );
+				this.editListElement( target );
 				
 			} else if( e.type == "click" ) {
 				
@@ -402,30 +426,30 @@ ListBuilder.prototype = {
 			
 		} else if( id == "removeListElm" ) {
 			
-			e.preventDefault();
+			$.stopEvent(e);
 			this.removeListElements();
 			
 		} else if( id == "addListElm" ) {
 			
-			e.preventDefault();
+			$.stopEvent(e);
 			this.addListElement();
 			
 		} else if( id == "outputJSON" ) {
 			
-			e.preventDefault();
+			$.stopEvent(e);
 			this.outputJSON();
 			
 		} else if( id == "inputJSON" ) {
 			
-			e.preventDefault();
+			$.stopEvent(e);
 			this.inputJSON();
 			
-		//} else if( e.type == "focus" && $.hasClass( e.target, "editInput") ) {
+		//} else if( e.type == "focus" && $.hasClass( target, "editInput") ) {
 			//?
-		} else if( e.type == "blur" && $.hasClass( e.target, "editInput") ) {
+		} else if( (e.type == "blur" || e.type == "focusout") && $.hasClass( target, "editInput") ) {
 			
-			e.preventDefault();
-			this.editListElement( e.target );
+			$.stopEvent(e);
+			this.editListElement( target );
 			
 		}
 	},

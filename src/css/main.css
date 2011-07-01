@@ -149,12 +149,17 @@ div{
 	width:349px;
 	border-right:none;
 	min-height:24px;
+	float:left;
 	font-style:italic;}
 	
 	/* the smaller textbox at the bottom for json input and output */
 	.textBox.smallText{
 		border-left:none;
 		width:260px;}
+	
+	.textBox.error{
+		border-color:red;}
+	
 	
 /* styling for all button elements */
 .actionButton{
@@ -207,7 +212,7 @@ div{
 	
 /* the ordered list itself */
 ol{
-	width:100%;
+	clear:both;
 	margin:10px 0px;}
 	
 	ol li{
