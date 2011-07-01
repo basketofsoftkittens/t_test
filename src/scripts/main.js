@@ -14,14 +14,14 @@
 //IE doesn't have indexOf for their Array's
 if(!Array.indexOf){
     Array.prototype.indexOf = function(obj){
-        for(var i=0; i<this.length; i++){
+        for(var i = 0; i < this.length; i++){
             if(this[i]==obj){
                 return i;
             }
         }
         return -1;
     }
-}
+};
 /**
  * Helper methods
  * @return (Obj) the object that contains all of the helper functions
@@ -336,9 +336,7 @@ ListBuilder.prototype = {
 	 */
 	bindEvent:function( eventName, elm, func ){
 		
-		// set the correct event registration handler
-		 var attachEventFunc= typeof elm.attachEvent == "function" ? "attachEvent" : "addEventListener"
-			,self			= this
+		var self			= this
 			// start building an argument list so you can alter the first parameter
 			// if nessecary
 		 	,args 			= [ eventName ];
@@ -349,7 +347,14 @@ ListBuilder.prototype = {
 		args.push(function( e ){
 			func.apply(self,arguments);
 		});
- 
+		// set the correct event registration handler
+		var attachEventFunc = function( eName, nFunc, bubbling ){
+			if( elm.addEventListener ){
+				elm.addEventListener( eName, nFunc, bubbling );
+			} else {
+				elm.attachEvent( eName, nFunc, bubbling );
+			}
+		};
 		// catch event on the bubbling phase so we can delegate
 		// the blur || focus events
 		if( (eventName == "blur" || eventName == "focus") ) {
@@ -359,9 +364,9 @@ ListBuilder.prototype = {
 			var alsoAttach		= ( eventName == "blur" ? "focusout" : "focusin" )
 				,alsoAttachArgs = args.slice();
 			alsoAttachArgs[0] = alsoAttach;
-			elm[attachEventFunc](args[0],args[1],args[2]);
+			attachEventFunc(args[0],args[1],args[2]);
 		}
-		elm[attachEventFunc](args[0],args[1],args[2]);
+		attachEventFunc(args[0],args[1],args[2]);
 	},
 	
 	/**
@@ -415,7 +420,7 @@ ListBuilder.prototype = {
 			e.preventDefault();
 			this.inputJSON();
 			
-		} else if( e.type == "focus" && $.hasClass( e.target, "editInput") ) {
+		//} else if( e.type == "focus" && $.hasClass( e.target, "editInput") ) {
 			//?
 		} else if( e.type == "blur" && $.hasClass( e.target, "editInput") ) {
 			

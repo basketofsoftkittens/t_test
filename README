@@ -1,0 +1,11 @@
+Project Requirements:
+	* Create an html page that has a numbered list of items.
+	* A user must be able to add an item to the list, and remove one or more items from the list.
+	* There must be a way to retrieve the current state of the list as a JSON string, and a way to
+	restore state from a JSON string.
+	It should work in IE6-8, Firefox, and WebKit. Do not use any external libraries, with one
+	exception: you can use JSON2 (http://www.json.org/json2.js) to handle JSON parse/stringify.
+	You may not use inline event listeners. The interface should be intuitive and attractive (flex your
+	css skills).
+
+Given these project requirements I had to create an application. this is that application.

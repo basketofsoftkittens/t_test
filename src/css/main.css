@@ -22,6 +22,9 @@
 	padding: 0;
 	margin: 0;
 }
+li{
+	margin:auto;
+}
 
 code,kbd,samp,pre,tt,var,textarea,input,select,isindex,listing,xmp,plaintext
 	{
