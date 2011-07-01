@@ -139,6 +139,7 @@ $ = function(){
 				window.onload = func;
 			}
 		},
+		
 		/**
 		 * Stop an event from propagating
 		 * @param (Event) the event to stop progpagation on
@@ -152,6 +153,7 @@ $ = function(){
 			else e.returnValue = false;
 			return e;
 		},
+		
 		/**
 		 * Get the target element of the event
 		 * @param (Event) the event to get the target of
@@ -159,6 +161,26 @@ $ = function(){
 		 */
 		getEventTarget:function( e ){
 			return ( typeof( e.srcElement ) == "undefined" ) ? e.target : e.srcElement;
+		},
+		
+		/**
+		 * Make an HTMLCollection into an array
+		 * @param (HTMLCollection) the colectio nthat will be returned as an array
+		 * @return (Array) the array that represents the HTMLCollection
+		 */
+		collectionToArray:function( coll ){
+			var out = [];
+			if( !coll ){
+				return out;
+			}
+			if( !coll.length){
+				out.push(coll);
+			} else {
+				for( var i = 0; i < coll.length; i++ ){
+					out.push(coll[i]);
+				}
+			}
+			return out;
 		}
 	}
 }();
@@ -448,22 +470,22 @@ ListBuilder.prototype = {
 				
 			}
 			
-		} else if( id == "removeListElm" ) {
+		} else if( id == "removeListElm" && e.type == "click" ) {
 			
 			$.stopEvent(e);
 			this.removeListElements();
 			
-		} else if( id == "addListElm" ) {
+		} else if( id == "addListElm" && e.type == "click"  ) {
 			
 			$.stopEvent(e);
 			this.addListElement();
 			
-		} else if( id == "outputJSON" ) {
+		} else if( id == "outputJSON" && e.type == "click"  ) {
 			
 			$.stopEvent(e);
 			this.outputJSON();
 			
-		} else if( id == "inputJSON" ) {
+		} else if( id == "inputJSON" && e.type == "click"  ) {
 			
 			$.stopEvent(e);
 			this.inputJSON();
@@ -550,8 +572,8 @@ ListBuilder.prototype = {
 		var checkboxes = this.form['checkboxes']
 		  , hasChecked = false;
 		 
-		//turn html collection into an array if needed
-		checkboxes = checkboxes.length ? Array.prototype.slice.call(checkboxes) : [checkboxes];
+		//turn html collection into an array
+		checkboxes = $.collectionToArray( checkboxes );
 
 		for( var i = 0; i < checkboxes.length; i++ ){
 			if( checkboxes[i].checked ){
