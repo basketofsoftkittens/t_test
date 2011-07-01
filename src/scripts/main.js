@@ -551,7 +551,7 @@ ListBuilder.prototype = {
 		  , hasChecked = false;
 		 
 		//turn html collection into an array if needed
-		checkboxes = checkboxes.length ? checkboxes : [checkboxes];
+		checkboxes = checkboxes.length ? Array.prototype.slice.call(checkboxes) : [checkboxes];
 
 		for( var i = 0; i < checkboxes.length; i++ ){
 			if( checkboxes[i].checked ){
