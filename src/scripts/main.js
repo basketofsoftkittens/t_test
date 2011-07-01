@@ -141,6 +141,8 @@ $ = function(){
 		},
 		/**
 		 * Stop an event from propagating
+		 * @param (Event) the event to stop progpagation on
+		 * @return (Event) the event passed in
 		 */
 		stopEvent:function( e ) {
 			if (e.stopPropagation) e.stopPropagation();
@@ -152,6 +154,8 @@ $ = function(){
 		},
 		/**
 		 * Get the target element of the event
+		 * @param (Event) the event to get the target of
+		 * @return (DOMElm) the element that is the target of the event
 		 */
 		getEventTarget:function( e ){
 			return ( typeof( e.srcElement ) == "undefined" ) ? e.target : e.srcElement;
@@ -310,6 +314,26 @@ function ListBuilder() {
 	// the indentifier that is in the template that serves as a placeholder for
 	// the items title
 	this.strInterpolationId = "%s"
+	// is the browser internet explorer
+	this.isIE = $.hasClass( document.getElementById("html"), "ie" );
+	var self = this;
+	// determine if the browser supports the place holder
+	this.supportsPlaceHolder = function(){
+	  var i = document.createElement('input')
+	  	, supportsPlaceHolder = 'placeholder' in i;
+	  return supportsPlaceHolder;
+	}();
+	
+	// make the placeholder text for the browsers that don't support it
+	if( !this.supportsPlaceHolder ){
+		var names = ['mainTextInput','jsonTextInput']
+		  , current;
+		for( var i = 0; i < names.length; i++ ){
+			current = this.form[names[i]];
+			current.value = current.getAttribute('placeholder');
+		}
+		
+	}
 }
 
 // build the prototype as an object for speed
@@ -444,12 +468,30 @@ ListBuilder.prototype = {
 			$.stopEvent(e);
 			this.inputJSON();
 			
-		//} else if( e.type == "focus" && $.hasClass( target, "editInput") ) {
-			//?
-		} else if( (e.type == "blur" || e.type == "focusout") && $.hasClass( target, "editInput") ) {
+		} else if( (e.type == "focus" || e.type == "focusin")) {
 			
-			$.stopEvent(e);
-			this.editListElement( target );
+			if ( $.hasClass( target, "textBox") ){
+				var placeHolder = target.getAttribute('placeholder')
+				if( !this.supportsPlaceHolder && target.value == placeHolder ){
+					target.value = "";
+				}
+				
+			}
+			
+		} else if( (e.type == "blur" || e.type == "focusout") ){
+			
+			if( $.hasClass( target, "editInput") ){
+				
+				$.stopEvent(e);
+				this.editListElement( target );
+				
+			} else if ( $.hasClass( target, "textBox") ){
+				var placeHolder = target.getAttribute('placeholder')
+				if( !this.supportsPlaceHolder && target.value == "" ){
+					target.value = placeHolder;
+				}
+				
+			}
 			
 		}
 	},
@@ -507,6 +549,10 @@ ListBuilder.prototype = {
 		
 		var checkboxes = this.form['checkboxes']
 		  , hasChecked = false;
+		 
+		//turn html collection into an array if needed
+		checkboxes = checkboxes.length ? checkboxes : [checkboxes];
+
 		for( var i = 0; i < checkboxes.length; i++ ){
 			if( checkboxes[i].checked ){
 				hasChecked = true;
