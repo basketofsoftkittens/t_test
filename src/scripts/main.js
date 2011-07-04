@@ -408,8 +408,21 @@ ListBuilder.prototype = {
 		// the scope that the function is called in to
 		// the listbuilder object	      			    
 		args.push(function( e ){
-			var ev = typeof( e ) == "undefined" ? window.event : e;
-			func.call(self,ev);
+			e = ( e || window.event );
+			
+			// normalize the event type so you dont have to do these
+			// checks repeatedly in the applied method
+			// leave the event object unmodified.
+			var eventType;
+			if( ( e.type == "focus" || e.type == "focusin" ) ){
+				eventType = "focus";
+			} else if ( (e.type == "blur" || e.type == "focusout") ){
+				eventType = "blur";
+			} else {
+				eventType = e.type;
+			}
+			
+			func.apply( self, [ e, eventType ] );
 		});
 		// set the correct event registration handler
 		var attachEventFunc = function( eName, nFunc, bubbling, attachEventDirectly ){
@@ -444,75 +457,84 @@ ListBuilder.prototype = {
 	 * @param (Event) the native delegated event
 	 * @return VOID
 	 */
-	eventRouter:function( e ){
-		var target = $.getEventTarget(e)
-		  , id = (target.getAttribute("id") || false);
+	eventRouter:function( e, eventType ){
+		var target	= $.getEventTarget(e)
+		  , id		= (target.getAttribute("id") || false)
+		  , self	= this
+		
+		// function for gracefully degrading HTML5 placeholder text
+		// for blur and focus events
+		var checkPlaceholderText = function(){
+			var placeHolder = target.getAttribute('placeholder')
+			if( eventType == "focus" ){
+				if( !self.supportsPlaceHolder && target.value == placeHolder ){
+					target.value = "";
+				}
+			} else { //blur
+				if( !self.supportsPlaceHolder && target.value == "" ){
+					target.value = placeHolder;
+				}
+			}
+		}
 
 		if( target.getAttribute("type") == "text") {
-			if( (e.type == "focus"|| e.type == "focusin") ) {
+			if( eventType == "focus" ) {
 				this.focusedElm = target;
 			}
-			if( (e.type == "blur" || e.type == "focusout") ) {
+			if( eventType == "blur" ) {
 				this.focusedElm = false;
 			}
 		}
-			
+		
+		// form was submitted
 		if( id == "addListElm" ) {
 			
 			$.stopEvent(e);
+			// user was trying to edit an existing item
 			if( this.focusedElm && $.hasClass( this.focusedElm, "editInput") ) {
 				
 				this.editListElement( target );
 				
-			} else if( e.type == "click" ) {
+			} else if( e.type == "click" ) { // user was trying to add a new item
 				
 				this.addListElement();
 				
 			}
 			
-		} else if( id == "removeListElm" && e.type == "click" ) {
+		} else if( id == "removeListElm" && eventType == "click" ) {
 			
 			$.stopEvent(e);
 			this.removeListElements();
 			
-		} else if( id == "addListElm" && e.type == "click"  ) {
+		} else if( id == "addListElm" && eventType == "click"  ) {
 			
 			$.stopEvent(e);
 			this.addListElement();
 			
-		} else if( id == "outputJSON" && e.type == "click"  ) {
+		} else if( id == "outputJSON" && eventType == "click"  ) {
 			
 			$.stopEvent(e);
 			this.outputJSON();
 			
-		} else if( id == "inputJSON" && e.type == "click"  ) {
+		} else if( id == "inputJSON" && eventType == "click"  ) {
 			
 			$.stopEvent(e);
 			this.inputJSON();
 			
-		} else if( (e.type == "focus" || e.type == "focusin")) {
+		} else if( eventType == "focus" ) {
 			
 			if ( $.hasClass( target, "textBox") ){
-				var placeHolder = target.getAttribute('placeholder')
-				if( !this.supportsPlaceHolder && target.value == placeHolder ){
-					target.value = "";
-				}
-				
+				checkPlaceholderText();
 			}
 			
-		} else if( (e.type == "blur" || e.type == "focusout") ){
+		} else if( eventType == "blur" ){
 			
+			// user wanted to edit an item
 			if( $.hasClass( target, "editInput") ){
-				
 				$.stopEvent(e);
 				this.editListElement( target );
-				
-			} else if ( $.hasClass( target, "textBox") ){
-				var placeHolder = target.getAttribute('placeholder')
-				if( !this.supportsPlaceHolder && target.value == "" ){
-					target.value = placeHolder;
-				}
-				
+			} else if ( $.hasClass( target, "textBox") ){ 
+				checkPlaceholderText();
 			}
 			
 		}

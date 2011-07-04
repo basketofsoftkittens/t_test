@@ -160,7 +160,7 @@ div{
 	.textBox.error{
 		border-color:red;}
 	
-	
+
 /* styling for all button elements */
 .actionButton{
 	background: #eee;
@@ -196,6 +196,7 @@ div{
 		height:44px;
 		text-align: center;
 		width: 90px;}
+		
 	/* button on the side of the text input */
 	.actionButton.rightSideButton{
 		-moz-border-radius: 0px 3px 3px 0px;
@@ -203,6 +204,7 @@ div{
 		border-radius: 0px 3px 3px 0px;
 		float:right;
 		margin-left:-4px;}
+		
 	.actionButton.leftSideButton{
 		-moz-border-radius: 3px 0px 0px 3px;
 		-webkit-border-radius: 3px 0px 0px 3px;
