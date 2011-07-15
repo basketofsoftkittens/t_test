@@ -28,7 +28,7 @@ if(!Array.indexOf){
  */
 $ = function(){
 	
-	return {
+	var ret =  {
 		/**
 		 * Check the type of a variable against Javascript's native types
 		 * @param (mixed) variable to check the type of
@@ -181,8 +181,27 @@ $ = function(){
 				}
 			}
 			return out;
-		}
-	}
+		}, 
+		
+		/**
+		 * Check to see if the browser supports placeholder text
+		 * in text inputs. Since this is the only shiv we are going to
+		 * use, make it an explicit property of the object and not a 
+		 * general function
+		 * @return VOID
+		 */
+		supportsPlaceHolder:(function(){
+		  var i = document.createElement('input')
+		  	, supportsPlaceHolder = 'placeholder' in i;
+		  return supportsPlaceHolder;
+		}())
+	
+	};
+	
+	// have to declare this outside of the object so we can use the hasClass method
+	ret.isIE = function(){ return ret.hasClass( document.getElementById("html"), "ie" );}();
+	
+	return ret;
 }();
 
 /**
